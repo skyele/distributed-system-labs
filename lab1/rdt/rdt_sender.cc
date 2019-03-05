@@ -13,14 +13,12 @@
  *       (excluding this single-byte header)
  */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "rdt_struct.h"
-#include "rdt_sender.h"
-
+#include "rdt_sender.h" 
 
 /* sender initialization, called once at the very beginning */
 void Sender_Init()
@@ -55,26 +53,25 @@ void Sender_FromUpperLayer(struct message *msg)
     /* the cursor always points to the first unsent byte in the message */
     int cursor = 0;
 
-    while (msg->size-cursor > maxpayload_size) {
-	/* fill in the packet */
-	pkt.data[0] = maxpayload_size;
-	memcpy(pkt.data+header_size, msg->data+cursor, maxpayload_size);
-
-	/* send it out through the lower layer */
-	Sender_ToLowerLayer(&pkt);
-
-	/* move the cursor */
-	cursor += maxpayload_size;
+    while (msg->size-cursor > maxpayload_size){
+        /* fill in the packet */
+        pkt.data[0] = maxpayload_size;
+        memcpy(pkt.data + header_size, msg->data + cursor, maxpayload_size);
+        /* send it out through the lower layer */
+        Sender_ToLowerLayer(&pkt);
+        /* move the cursor */
+        cursor += maxpayload_size;
     }
 
     /* send out the last packet */
-    if (msg->size > cursor) {
-	/* fill in the packet */
-	pkt.data[0] = msg->size-cursor;
-	memcpy(pkt.data+header_size, msg->data+cursor, pkt.data[0]);
+    if (msg->size > cursor)
+    {
+        /* fill in the packet */
+        pkt.data[0] = msg->size - cursor;
+        memcpy(pkt.data + header_size, msg->data + cursor, pkt.data[0]);
 
-	/* send it out through the lower layer */
-	Sender_ToLowerLayer(&pkt);
+        /* send it out through the lower layer */
+        Sender_ToLowerLayer(&pkt);
     }
 }
 
