@@ -20,6 +20,19 @@
 #include "rdt_struct.h"
 #include "rdt_sender.h" 
 
+#define MAX_SEQ 9
+#define NR_BUFS ((MAX_SEQ + 1)/2)
+
+typedef enum {frame_arrival, cksum_err, timeout, network_layer_ready, ack_timeout} even_type;
+bool no_nak = true;
+seq_nr oldest_frame = MAX_SEQ + 1;
+static seq_nr ack_expected = 0;
+static seq_nr next_frame_to_send = 0;
+
+static bool between(seq_nr a, seq_nr b, seq_nr c){
+    return ((a <= b) && (b < c)) || ((c < a) && (a <= b)) || ((b < c ) && (c < a));
+}
+
 /* sender initialization, called once at the very beginning */
 void Sender_Init()
 {

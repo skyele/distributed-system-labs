@@ -21,7 +21,8 @@
 #include "rdt_struct.h"
 #include "rdt_receiver.h"
 
-
+static seq_nr frame_expected = 0;
+static seq_nr too_far = 0;
 /* receiver initialization, called once at the very beginning */
 void Receiver_Init()
 {
