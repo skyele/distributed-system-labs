@@ -20,9 +20,24 @@
 
 #include "rdt_struct.h"
 #include "rdt_receiver.h"
-#define MAX_SEQ 3
+#define MAX_SEQ 9
 #define NR_BUFS ((MAX_SEQ + 1)/2)
-//static int CHECKSUM_SIZE = 1;
+void Receiver_AddChecksum(packet *pkt);
+unsigned int Receiver_Increase(unsigned int seq_no);
+void Receive_TrytoUpperLayer();
+void Receiver_NcktoLowerLayer(unsigned int seq_no);
+bool Receiver_CheckChecksum(struct packet *pkt);
+void Receiver_AcktoLowerLayer(unsigned int seq_no);
+
+struct receiver_buffer_packet{
+  bool rec;
+  unsigned int seq_no;
+  packet* pkt;
+  receiver_buffer_packet(): rec(false){};
+};
+
+typedef unsigned int seq_nr; /* sequence or ack numbers */
+
 seq_nr frame_expected = 0;
 seq_nr too_far = NR_BUFS - 1;
 int HEADER_SIZE = 12;

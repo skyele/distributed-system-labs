@@ -10,11 +10,6 @@
 
 #include "rdt_struct.h"
 
-struct sender_buffer_packet{
-  bool ack;
-  struct packet* pkt;
-  sender_buffer_packet(): ack(false), pkt(NULL){};
-};
 
 /*[]------------------------------------------------------------------------[]
   |  routines that you can call
@@ -65,12 +60,4 @@ void Sender_FromLowerLayer(struct packet *pkt);
 /* event handler, called when the timer expires */
 void Sender_Timeout();
 
-bool Sender_CheckChecksum(struct packet *pkt);
-seq_nr Sender_GetACKNo(struct packet *pkt);
-void Sender_AddChecksum(packet *pkt);
-void Sender_MakePacket(struct packet* pkt, int size, char* data);
-seq_nr Sender_Increase(seq_nr seq_no);
-void Sender_SendByTrigger();
-seq_nr Sender_GetSeq(packet *pkt);
-bool Sender_NCKCheck(packet *pkt);
 #endif  /* _RDT_SENDER_H_ */

@@ -30,7 +30,4 @@ struct packet {
     char data[RDT_PKTSIZE];
 };
 
-typedef unsigned int seq_nr; /* sequence or ack numbers */
-typedef enum { data, ack, nak} frame_kind;
-
 #endif  /* _RDT_STRUCT_H_ */

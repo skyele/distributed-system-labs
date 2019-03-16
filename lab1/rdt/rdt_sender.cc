@@ -21,8 +21,22 @@
 #include "rdt_struct.h"
 #include "rdt_sender.h" 
 using namespace std;
-#define MAX_SEQ 3
+struct sender_buffer_packet{
+  bool ack;
+  struct packet* pkt;
+  sender_buffer_packet(): ack(false), pkt(NULL){};
+};
+#define MAX_SEQ 9
 #define NR_BUFS ((MAX_SEQ + 1)/2)
+bool Sender_CheckChecksum(struct packet *pkt);
+unsigned int Sender_GetACKNo(struct packet *pkt);
+void Sender_AddChecksum(packet *pkt);
+void Sender_MakePacket(struct packet* pkt, int size, char* data);
+unsigned int Sender_Increase(unsigned int seq_no);
+void Sender_SendByTrigger();
+unsigned int Sender_GetSeq(packet *pkt);
+bool Sender_NCKCheck(packet *pkt);
+typedef unsigned int seq_nr; /* sequence or ack numbers */
 
 typedef enum {frame_arrival, cksum_err, timeout, network_layer_ready, ack_timeout} even_type;
 seq_nr oldest_frame = MAX_SEQ + 1;
@@ -35,7 +49,7 @@ extern int SEQ_POS;
 extern int ACK_POS;
 extern int NCK_POS;
 extern int CHK_POS;
-double TIME_OUT = 0.3;
+double TIME_OUT = 0.6;
 queue<packet *> packet_queue;
 //static int lun = 0;
 
