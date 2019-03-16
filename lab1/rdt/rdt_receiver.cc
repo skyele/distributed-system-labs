@@ -49,7 +49,6 @@ int IMPOSSIBLE_SEQ_NO = 4096;
 int no_nak = true;
 int nak_no = -1;
 seq_nr next_surrend = 0;
-//static int lun = 0;
 
 receiver_buffer_packet receiver_buffer[MAX_SEQ];
 
@@ -96,20 +95,15 @@ void Receiver_FromLowerLayer(struct packet *pkt)
 {
     ASSERT(pkt);
     seq_nr seq_no = *(seq_nr *)(pkt->data + SEQ_POS);
-    // fprintf(stdout, "Re -- from low layer -- seq_nr -- %u -- frame_expected -- %u -- too_far -- %u \n", seq_no, frame_expected, too_far);
     if(!Receiver_CheckChecksum(pkt)){
         if(no_nak || !no_nak){
             Receiver_NcktoLowerLayer(0);
         }
-    }
-    //if(seq_no != frame_expected && no_nak){
-    if(seq_no != frame_expected){
-        //fprintf(stdout, "Re -- %d -- nak-caused\n", seq_no);
+    }if(seq_no != frame_expected){
         Receiver_NcktoLowerLayer(seq_no);
     }
     
     if(between(frame_expected, seq_no, too_far) && receiver_buffer[seq_no%MAX_SEQ].rec == false){
-        //fprintf(stdout, "Re -- %d -- ack\n", seq_no);
         packet *new_packet = (packet *)malloc(sizeof(packet));
         memcpy(new_packet->data, pkt->data, RDT_PKTSIZE);
         receiver_buffer[seq_no%MAX_SEQ].rec = true;
