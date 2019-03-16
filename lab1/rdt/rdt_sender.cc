@@ -81,7 +81,7 @@ void Sender_Final()
    sender */
 void Sender_FromUpperLayer(struct message *msg)
 {
-    fprintf(stdout, "in Sender_FromUpperLayer\n");
+    // fprintf(stdout, "in Sender_FromUpperLayer\n");
     /* 10-byte header indicating the size of the payload */
     /* maximum payload size */
     int maxpayload_size = RDT_PKTSIZE - HEADER_SIZE;
@@ -122,7 +122,7 @@ void Sender_FromLowerLayer(struct packet *pkt)
     if(!Sender_CheckChecksum(pkt))
         return;
     seq_no = Sender_GetACKNo(pkt);
-    fprintf(stdout, "in Sender_FromLowerLayer\n");
+    // fprintf(stdout, "in Sender_FromLowerLayer\n");
     if(Sender_NCKCheck(pkt)){   //nck
         //seq_no = Sender_GetSeq(pkt);
 
@@ -180,19 +180,19 @@ void Sender_FromLowerLayer(struct packet *pkt)
 /* event handler, called when the timer expires */
 void Sender_Timeout()
 {
-    fprintf(stdout, "in Sender_Timeout\n");
+    // fprintf(stdout, "in Sender_Timeout\n");
     seq_nr i = ack_expected;
     while(between(ack_expected, i, next_frame_to_send)){
-        fprintf(stdout, "in while -- ack_expected: %u -- i: %u -- next_frame_to_send: %u\n",ack_expected, i, next_frame_to_send);
-        fprintf(stdout,"the nbuffer %d\n", nbuffered);
+        // fprintf(stdout, "in while -- ack_expected: %u -- i: %u -- next_frame_to_send: %u\n",ack_expected, i, next_frame_to_send);
+        // fprintf(stdout,"the nbuffer %d\n", nbuffered);
         if(!sender_buffer[i%MAX_SEQ].ack){
-            fprintf(stdout, "Sd -- %d -- timeout -- nbuffered -- %d\n", i, nbuffered);
+            // fprintf(stdout, "Sd -- %d -- timeout -- nbuffered -- %d\n", i, nbuffered);
             Sender_ToLowerLayer(sender_buffer[i%MAX_SEQ].pkt);
             Sender_StartTimer(TIME_OUT);
         }
         i = Sender_Increase(i);
     }
-    fprintf(stdout, "after Sender_Timeout\n");
+    // fprintf(stdout, "after Sender_Timeout\n");
 }
 
 bool Sender_CheckChecksum(struct packet *pkt){
@@ -219,7 +219,7 @@ void Sender_AddChecksum(packet *pkt){
 
 void Sender_MakePacket(struct packet* pkt, int size, char* data){
     //size
-    fprintf(stdout, "in Sender_MakePacket\n");
+    // fprintf(stdout, "in Sender_MakePacket\n");
     memset(pkt->data, 0, RDT_PKTSIZE);
     pkt->data[0] = size;
     *(seq_nr *)(pkt->data + SEQ_POS) = next_seq_in_queue;   //seq_num
@@ -230,14 +230,14 @@ void Sender_MakePacket(struct packet* pkt, int size, char* data){
 }
 
 void Sender_SendByTrigger(){
-    fprintf(stdout, "in Sender_SendByTrigger\n");
+    // fprintf(stdout, "in Sender_SendByTrigger\n");
     while(nbuffered < NR_BUFS - 1 && packet_queue.size()){
         packet *pkt = packet_queue.front();
         packet_queue.pop();
         sender_buffer[next_frame_to_send%MAX_SEQ].ack = false;
         sender_buffer[next_frame_to_send%MAX_SEQ].pkt = pkt;
         nbuffered++;
-        fprintf(stdout, "S ++ %d -- send -- size -- %d -- content -- %*s\n", next_frame_to_send, pkt->data[0], pkt->data[0], pkt->data + HEADER_SIZE);
+        // fprintf(stdout, "S ++ %d -- send -- size -- %d -- content -- %*s\n", next_frame_to_send, pkt->data[0], pkt->data[0], pkt->data + HEADER_SIZE);
         next_frame_to_send = Sender_Increase(next_frame_to_send);
         Sender_StartTimer(TIME_OUT);
         /* send it out through the lower layer */

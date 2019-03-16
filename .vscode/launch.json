@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "\\home\\jos\\ds-lab\\lab1\\rdt\\rdt_sim",
-            "args": ["1000", "0.1", "100", "0.99", "0", "0", "0"],
+            "args": ["1000", "0.1", "100", "0", "0", "0.5", "0"],
             "stopAtEntry": false,
             "cwd": "\\home\\jos\\ds-lab\\lab1\\rdt",
             "environment": [],

@@ -81,17 +81,14 @@ void Receiver_FromLowerLayer(struct packet *pkt)
 {
     ASSERT(pkt);
     seq_nr seq_no = *(seq_nr *)(pkt->data + SEQ_POS);
-    fprintf(stdout, "Re -- from low layer -- seq_nr -- %u -- frame_expected -- %u -- too_far -- %u \n", seq_no, frame_expected, too_far);
-    if(seq_no == 18)
-        fprintf(stdout, "?");
-    if(pkt->data[0] == 0)
-        fprintf(stdout, "?");
+    // fprintf(stdout, "Re -- from low layer -- seq_nr -- %u -- frame_expected -- %u -- too_far -- %u \n", seq_no, frame_expected, too_far);
     if(!Receiver_CheckChecksum(pkt)){
-        if(no_nak){
+        if(no_nak || !no_nak){
             Receiver_NcktoLowerLayer(0);
         }
     }
-    if(seq_no != frame_expected && no_nak){
+    //if(seq_no != frame_expected && no_nak){
+    if(seq_no != frame_expected){
         //fprintf(stdout, "Re -- %d -- nak-caused\n", seq_no);
         Receiver_NcktoLowerLayer(seq_no);
     }
@@ -105,14 +102,14 @@ void Receiver_FromLowerLayer(struct packet *pkt)
         receiver_buffer[seq_no%MAX_SEQ].pkt = new_packet;
         Receiver_AcktoLowerLayer(seq_no);
         while(receiver_buffer[frame_expected%MAX_SEQ].rec){
-            fprintf(stdout, "Re -- try to upper layer -- %u\n", frame_expected);
+            // fprintf(stdout, "Re -- try to upper layer -- %u\n", frame_expected);
             Receive_TrytoUpperLayer();
             no_nak = true;
             receiver_buffer[frame_expected%MAX_SEQ].rec = false;
             receiver_buffer[frame_expected%MAX_SEQ].pkt = NULL;
             receiver_buffer[frame_expected%MAX_SEQ].seq_no = IMPOSSIBLE_SEQ_NO;
             frame_expected = Receiver_Increase(frame_expected);
-            fprintf(stdout, "Receiver -- after upper layer -- frame_expected -- %d\n", frame_expected);
+            // fprintf(stdout, "Receiver -- after upper layer -- frame_expected -- %d\n", frame_expected);
             too_far = Receiver_Increase(too_far);
         }
     }
@@ -146,8 +143,8 @@ void Receive_TrytoUpperLayer(){
     ASSERT(msg!=NULL);
     packet *pkt = receiver_buffer[frame_expected%MAX_SEQ].pkt;
     msg->size = pkt->data[0];
-    fprintf(stdout, "R -- before surrender -- frame_expected -- %u\n", frame_expected);
-    fprintf(stdout, "R surrender %d -- size -- %d -- content --- %*s\n", *(unsigned char *)((unsigned char*)pkt->data+SEQ_POS), pkt->data[0], pkt->data[0], pkt->data + HEADER_SIZE);
+    // fprintf(stdout, "R -- before surrender -- frame_expected -- %u\n", frame_expected);
+    // fprintf(stdout, "R surrender %d -- size -- %d -- content --- %*s\n", *(unsigned char *)((unsigned char*)pkt->data+SEQ_POS), pkt->data[0], pkt->data[0], pkt->data + HEADER_SIZE);
     /* sanity check in case the packet is corrupted */
     if (msg->size<0) msg->size=0;
     if (msg->size>RDT_PKTSIZE-HEADER_SIZE) msg->size=RDT_PKTSIZE-HEADER_SIZE;
@@ -157,7 +154,7 @@ void Receive_TrytoUpperLayer(){
     memcpy(msg->data, pkt->data+HEADER_SIZE, msg->size);
     Receiver_ToUpperLayer(msg);
     seq_nr tmp =  *(seq_nr *)(pkt->data+SEQ_POS);
-    fprintf(stdout, "tmp -- %u -- next_surrend -- %u\n", tmp, next_surrend);
+    // fprintf(stdout, "tmp -- %u -- next_surrend -- %u\n", tmp, next_surrend);
     ASSERT(tmp == next_surrend);
     next_surrend = Receiver_Increase(next_surrend);
     /* don't forget to free the space */
@@ -191,6 +188,5 @@ void Receiver_NcktoLowerLayer(seq_nr seq_no){
 bool Receiver_CheckChecksum(struct packet *pkt){
     ASSERT(pkt);
     unsigned short local_checksum = calculate_checksum(pkt);
-    ASSERT(local_checksum == 0);
     return local_checksum == 0;
 }
