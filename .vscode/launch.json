@@ -8,14 +8,14 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "D:\\course\\2019spring-大三下\\distributed system\\labs\\lab1\\rdt\\rdt_sim",
-            "args": [],
+            "program": "\\home\\jos\\ds-lab\\lab1\\rdt\\rdt_sim",
+            "args": ["1000", "0.1", "100", "0.99", "0", "0", "0"],
             "stopAtEntry": false,
-            "cwd": "D:\\course\\2019spring-大三下\\distributed system\\labs\\lab1\\rdt",
+            "cwd": "\\home\\jos\\ds-lab\\lab1\\rdt",
             "environment": [],
             "externalConsole": true,
             "MIMode": "gdb",
-            "miDebuggerPath": "/path/to/gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

@@ -10,6 +10,12 @@
 
 #include "rdt_struct.h"
 
+struct receiver_buffer_packet{
+  bool rec;
+  seq_nr seq_no;
+  packet* pkt;
+  receiver_buffer_packet(): rec(false){};
+};
 
 /*[]------------------------------------------------------------------------[]
   |  routines that you can call
@@ -23,7 +29,6 @@ void Receiver_ToLowerLayer(struct packet *pkt);
 
 /* deliver a message to the upper layer at the receiver */
 void Receiver_ToUpperLayer(struct message *msg);
-
 
 /*[]------------------------------------------------------------------------[]
   |  routines to be changed/enhanced by you
@@ -43,4 +48,11 @@ void Receiver_Final();
    receiver */
 void Receiver_FromLowerLayer(struct packet *pkt);
 
+void Receiver_AcktoLowerLayer(seq_nr seq_no);
+
+void Receiver_AddChecksum(packet *pkt);
+seq_nr Receiver_Increase(seq_nr seq_no);
+void Receive_TrytoUpperLayer();
+void Receiver_NcktoLowerLayer(seq_nr seq_no);
+bool Receiver_CheckChecksum(struct packet *pkt);
 #endif  /* _RDT_RECEIVER_H_ */
