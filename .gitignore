@@ -2,4 +2,4 @@
 *.gz
 build/*
 /lab2/dpdk-stable-16.11.9/*
-
+lab3/build/*

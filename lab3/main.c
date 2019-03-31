@@ -42,7 +42,6 @@ main(int argc, char **argv)
             
             /** make decision: weather drop */
             int pass = qos_dropper_run(flow_id, color, time);
-
             cnt_send[flow_id] += pkt_len;
             cnt_pass[flow_id] += pass ? 0 : pkt_len;
 
