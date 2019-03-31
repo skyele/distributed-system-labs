@@ -5,9 +5,24 @@
 
 #include "qos.h"
 
-#define FLOW_METER   struct rte_meter_srtcm
+#define COLOR_NUM 3
+#define WQ_LOG2 7 // [1, 12]
+#define MIN_TH 10
+#define MAX_TH 1000
+#define MAXP_INV 150 // [1, 255]
 
-FLOW_METER qos_flows[APP_FLOWS_MAX];
+uint64_t oldtime = 0;
+
+struct rte_sched_queue {
+	uint16_t size;
+};
+
+struct rte_meter_srtcm qos_flows[APP_FLOWS_MAX];
+// struct flow_conf qos_conf[MAX_DATA_STREAMS];
+
+struct rte_sched_queue *qos_queue[COLOR_NUM];
+struct rte_red_config *qos_cfg[COLOR_NUM];
+struct rte_red *qos_red[COLOR_NUM];
 
 struct rte_meter_srtcm_params app_srtcm_params[] = {
 	{.cir = 1000000 * 46,  .cbs = 2048, .ebs = 2048},
@@ -56,10 +71,36 @@ int
 qos_dropper_init(void)
 {
     /* to do */
+	for(int i = 0; i < COLOR_NUM; i++){
+		qos_queue[i] = (struct rte_sched_queue *)malloc(sizeof(struct rte_sched_queue));
+		qos_queue[i]->size = 0;
+		qos_red[i] = (struct rte_red *)malloc(sizeof(struct rte_red));
+		rte_red_rt_data_init(qos_red[i]);
+		qos_cfg[i] = (struct rte_red_config *)malloc(sizeof(struct rte_red_config));
+		rte_red_config_init(qos_cfg[i], WQ_LOG2, MIN_TH, MAX_TH, MAXP_INV);
+	}
+	return 0;
 }
 
 int
 qos_dropper_run(uint32_t flow_id, enum qos_color color, uint64_t time)
 {
-    /* to do */
+	if(oldtime != time){
+		for(int i = 0; i < COLOR_NUM; i++){
+			qos_queue[i]->size = 0;
+		}
+		oldtime = time;
+	}
+	struct rte_red_config *red_cfg;
+	struct rte_red *red;
+	red_cfg = qos_cfg[color];
+	if ((red_cfg->min_th | red_cfg->max_th) == 0){
+		return 0;
+	}
+	red = qos_red[color];
+	int isEnqueue = rte_red_enqueue(red_cfg, red, qos_queue[color]->size, time);
+	if(isEnqueue == 0){
+		qos_queue[color]->size++;
+	}
+	return isEnqueue;
 }
