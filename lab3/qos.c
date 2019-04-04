@@ -78,8 +78,6 @@ qos_dropper_init(void)
 		qos_queue[i]->size = 0;
 		qos_red[i] = (struct rte_red *)malloc(sizeof(struct rte_red));
 		rte_red_rt_data_init(qos_red[i]);
-		// qos_cfg[i] = (struct rte_red_config *)malloc(sizeof(struct rte_red_config));
-		// rte_red_config_init(qos_cfg[i], WQ_LOG2, MIN_TH, MAX_TH, MAXP_INV);
 	}
 
 	for(int i = 0; i < FLOW_NUM; i++){
